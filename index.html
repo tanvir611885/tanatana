@@ -1,0 +1,88 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
+    }
+    #chat-box {
+      padding: 10px;
+      background-color: white;
+      height: 80%;
+      overflow-y: auto;
+      border-bottom: 1px solid #ccc;
+    }
+    #chat-form {
+      display: flex;
+    }
+    #chat-form input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #chat-form button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    #chat-form button:hover {
+      background-color: #45a049;
+    }
+    .message {
+      padding: 5px;
+      margin: 5px 0;
+      background-color: #f1f1f1;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-box"></div>
+
+  <form id="chat-form">
+    <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" required>
+    <button type="submit">Send</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io(); // Connect to the server
+
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatBox = document.getElementById('chat-box');
+
+    // Listen for chat messages from the server
+    socket.on('chat message', (msg) => {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.textContent = msg;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+    });
+
+    // Handle form submission
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // Prevent page reload
+      const message = chatInput.value.trim();
+      if (message) {
+        socket.emit('chat message', message); // Send message to server
+        chatInput.value = ''; // Clear input field
+      }
+    });
+  </script>
+</body>
+</html>
